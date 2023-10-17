@@ -1,7 +1,8 @@
+import { FamilyMember } from 'src/models/family-member';
+
 export class DataSource {
   private static instance: DataSource;
-  private static siblings: Map<string, Record<string, unknown>[]> = new Map();
-  private static parents: Map<string, Record<string, unknown>[]> = new Map();
+  private static familyMember: Map<string, FamilyMember> = new Map();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
@@ -14,37 +15,88 @@ export class DataSource {
     return DataSource.instance;
   }
 
-  public addSibling(child: string, siblingName: string, gender: string) {
-    let siblings = DataSource.siblings.get(child);
+  /**
+   * For prepopulation only.
+   *
+   * @param {FamilyMember} familyMember
+   * @memberof DataSource
+   */
+  public addMember(familyMember: FamilyMember) {
+    DataSource.familyMember.set(familyMember.name, familyMember);
+  }
 
-    if (!siblings?.length) siblings = [];
+  /*
+    1. Save child inside mother
+    2. Save child inside father
+    3. Save child as sibling to each siblings
+    4. Save incomplete record
+  */
+  public addChild(mothersName: string, childName: string, gender: string) {
+    const mother = DataSource.familyMember.get(mothersName);
 
-    siblings.push({
-      name: siblingName,
+    if (!mother) throw new Error('PERSON_NOT_FOUND');
+
+    let children = mother.children;
+    const childsSiblings = [...children];
+    if (!children?.length) children = [];
+
+    children.push({
+      name: childName,
       gender,
     });
 
-    DataSource.siblings.set(child, siblings);
-  }
-
-  public addParent(child: string, parentName: string, gender: string) {
-    let parents = DataSource.parents.get(child);
-
-    if (!parents?.length) parents = [];
-
-    parents.push({
-      name: parentName,
-      gender,
+    DataSource.familyMember.set(mothersName, {
+      ...mother,
+      children,
     });
 
-    DataSource.parents.set(child, parents);
-  }
+    const fathersName = mother.spouse.name;
 
-  public get(siblings: boolean, name: string) {
-    if (siblings) {
-      return DataSource.siblings.get(name) ?? [];
-    } else {
-      return DataSource.parents.get(name) ?? [];
+    DataSource.familyMember.set(fathersName, {
+      ...mother,
+      name: mother.spouse.name,
+      gender: mother.spouse.gender,
+      spouse: {
+        name: mother.name,
+        gender: mother.gender,
+      },
+      children,
+    });
+
+    for (const sibling of childsSiblings) {
+      const siblingObject = DataSource.familyMember.get(sibling.name);
+      let otherSiblings = siblingObject.siblings;
+
+      if (!otherSiblings?.length) otherSiblings = [];
+
+      otherSiblings.push({
+        name: childName,
+        gender,
+      });
+
+      DataSource.familyMember.set(sibling.name, {
+        ...siblingObject,
+        siblings: otherSiblings,
+      });
     }
+
+    const newFamilyMember: FamilyMember = {
+      name: childName,
+      gender,
+      mother: mother,
+      father: {
+        name: fathersName,
+        gender: 'M',
+      },
+      siblings: childsSiblings,
+      children: [],
+      spouse: undefined,
+    };
+
+    DataSource.familyMember.set(childName, newFamilyMember);
+  }
+
+  public getFamilyMember(name: string) {
+    return DataSource.familyMember.get(name);
   }
 }
