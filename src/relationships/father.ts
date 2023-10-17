@@ -1,5 +1,5 @@
 import { Relationship } from './relationship';
-import { DataSource } from 'src/data/datasource';
+import { DataSource } from '../data/datasource';
 
 export class Father implements Relationship {
   constructor(private dataSource: DataSource) {}

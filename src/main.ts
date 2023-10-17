@@ -43,7 +43,6 @@ import fs from 'fs';
   datasource.addChild('Flora', 'Louis', 'Male');
   datasource.addSpouse('Victoire', 'Ted', 'Male');
   datasource.addChild('Victoire', 'Remus', 'Male');
-
   // const command = 'GET_RELATIONSHIP Bill Mother';
   // start of function
   const fileName = process.argv[2];
