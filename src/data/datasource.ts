@@ -1,3 +1,4 @@
+import { ChildAdditionFailedError, PersonNotFoundError } from 'src/errors';
 import { FamilyMember } from 'src/models/family-member';
 
 export class DataSource {
@@ -31,10 +32,12 @@ export class DataSource {
     3. Save child as sibling to each siblings
     4. Save incomplete record
   */
-  public addChild(mothersName: string, childName: string, gender: string) {
+  public addChild(mothersName: string, childName: string, gender: 'F' | 'M') {
     const mother = DataSource.familyMember.get(mothersName);
 
-    if (!mother) throw new Error('PERSON_NOT_FOUND');
+    if (!mother) throw new PersonNotFoundError();
+
+    if (mother.gender !== 'F') throw new ChildAdditionFailedError();
 
     let children = mother.children;
     const childsSiblings = [...children];
@@ -110,7 +113,7 @@ export class DataSource {
    * @param {string} gender
    * @memberof DataSource
    */
-  public addSpouse(memberName: string, spouseName: string, gender: string) {
+  public addSpouse(memberName: string, spouseName: string, gender: 'F' | 'M') {
     const member = DataSource.familyMember.get(memberName);
 
     DataSource.familyMember.set(memberName, {
