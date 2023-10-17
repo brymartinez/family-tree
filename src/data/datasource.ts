@@ -16,7 +16,7 @@ export class DataSource {
   }
 
   /**
-   * For prepopulation only.
+   * Helper function for prepopulation.
    *
    * @param {FamilyMember} familyMember
    * @memberof DataSource
@@ -83,7 +83,10 @@ export class DataSource {
     const newFamilyMember: FamilyMember = {
       name: childName,
       gender,
-      mother: mother,
+      mother: {
+        name: mother.name,
+        gender: 'F',
+      },
       father: {
         name: fathersName,
         gender: 'M',
@@ -94,6 +97,64 @@ export class DataSource {
     };
 
     DataSource.familyMember.set(childName, newFamilyMember);
+  }
+
+  /**
+   * Helper function for adding spouses.
+   * 1. Add spouse to partner
+   * 2. Add parent to each children
+   * 3. Save incomplete record
+   *
+   * @param {string} partnerName
+   * @param {string} name
+   * @param {string} gender
+   * @memberof DataSource
+   */
+  public addSpouse(memberName: string, spouseName: string, gender: string) {
+    const member = DataSource.familyMember.get(memberName);
+
+    DataSource.familyMember.set(memberName, {
+      ...member,
+      spouse: {
+        name: spouseName,
+        gender,
+      },
+    });
+
+    for (const child of member.children) {
+      const childObject = DataSource.familyMember.get(child.name);
+
+      DataSource.familyMember.set(child.name, {
+        ...childObject,
+        ...(gender === 'F' && {
+          mother: {
+            name: spouseName,
+            gender: 'F',
+          },
+        }),
+        ...(gender === 'M' && {
+          father: {
+            name: spouseName,
+            gender: 'M',
+          },
+        }),
+      });
+    }
+
+    const newFamilyMember: FamilyMember = {
+      name: spouseName,
+      gender,
+      spouse: {
+        name: member.name,
+        gender: member.gender,
+      },
+      children: member.children,
+      mother: undefined,
+      father: undefined,
+      siblings: undefined,
+    };
+
+    DataSource.familyMember.set(spouseName, newFamilyMember);
   }
 
   public getFamilyMember(name: string) {

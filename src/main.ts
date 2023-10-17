@@ -30,11 +30,19 @@ datasource.addMember({
 });
 
 datasource.addChild('Queen Margret', 'Bill', 'M');
-// datasource.addChild('Queen Margret', 'Percy', 'M');
+datasource.addChild('Queen Margret', 'Charlie', 'M');
+datasource.addChild('Queen Margret', 'Percy', 'M');
+datasource.addSpouse('Bill', 'Flora', 'F');
+datasource.addChild('Bill', 'Victoire', 'F');
+datasource.addChild('Bill', 'Dominique', 'F');
+datasource.addChild('Bill', 'Louis', 'M');
+datasource.addSpouse('Victoire', 'Ted', 'M');
+datasource.addChild('Victoire', 'Remus', 'M');
+
 // const command = 'GET_RELATIONSHIP Bill Mother';
 
 const rel = 'mother';
 
 console.log(
-  RelationshipObject[rel]?.get('Bill') || new Error('Relationship not found.'),
+  RelationshipObject[rel]?.get('Remus') || new Error('Relationship not found.'),
 );
