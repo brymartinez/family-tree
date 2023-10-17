@@ -1,5 +1,7 @@
 import { DataSource } from './data/datasource';
+import { PersonNotFoundError } from './errors';
 import { RelationshipObject } from './relationships/relationship';
+import { Adapter } from './utils/adapter';
 
 (async () => {
   const datasource = DataSource.getInstance();
@@ -46,6 +48,7 @@ import { RelationshipObject } from './relationships/relationship';
   const rel = 'maternal-aunt';
 
   console.log(
-    RelationshipObject[rel]?.get('Remus') || new Error('PERSON_NOT_FOUND'),
+    new Adapter(RelationshipObject[rel]?.get('Remus')).transform() ||
+      new PersonNotFoundError().message,
   );
 })();
