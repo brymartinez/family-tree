@@ -1,4 +1,5 @@
-import { ChildAdditionFailedError, PersonNotFoundError } from 'src/errors';
+import { Gender } from 'src/models/person';
+import { ChildAdditionFailedError, PersonNotFoundError } from '../errors';
 import { FamilyMember } from 'src/models/family-member';
 
 export class DataSource {
@@ -32,12 +33,12 @@ export class DataSource {
     3. Save child as sibling to each siblings
     4. Save incomplete record
   */
-  public addChild(mothersName: string, childName: string, gender: 'F' | 'M') {
+  public addChild(mothersName: string, childName: string, gender: Gender) {
     const mother = DataSource.familyMember.get(mothersName);
 
     if (!mother) throw new PersonNotFoundError();
 
-    if (mother.gender !== 'F') throw new ChildAdditionFailedError();
+    if (mother.gender !== 'Female') throw new ChildAdditionFailedError();
 
     let children = mother.children;
     const childsSiblings = [...children];
@@ -88,11 +89,11 @@ export class DataSource {
       gender,
       mother: {
         name: mother.name,
-        gender: 'F',
+        gender: 'Female',
       },
       father: {
         name: fathersName,
-        gender: 'M',
+        gender: 'Male',
       },
       siblings: childsSiblings,
       children: [],
@@ -113,7 +114,7 @@ export class DataSource {
    * @param {string} gender
    * @memberof DataSource
    */
-  public addSpouse(memberName: string, spouseName: string, gender: 'F' | 'M') {
+  public addSpouse(memberName: string, spouseName: string, gender: Gender) {
     const member = DataSource.familyMember.get(memberName);
 
     DataSource.familyMember.set(memberName, {
@@ -129,16 +130,16 @@ export class DataSource {
 
       DataSource.familyMember.set(child.name, {
         ...childObject,
-        ...(gender === 'F' && {
+        ...(gender === 'Female' && {
           mother: {
             name: spouseName,
-            gender: 'F',
+            gender: 'Female',
           },
         }),
-        ...(gender === 'M' && {
+        ...(gender === 'Male' && {
           father: {
             name: spouseName,
-            gender: 'M',
+            gender: 'Male',
           },
         }),
       });

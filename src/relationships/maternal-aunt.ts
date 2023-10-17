@@ -10,7 +10,7 @@ export class MaternalAunt implements Relationship {
     return (
       this.dataSource
         .getFamilyMember(mother.name)
-        .siblings?.filter((sib) => sib.gender === 'F') ?? []
+        .siblings?.filter((sib) => sib.gender === 'Female') ?? []
     );
   }
 }

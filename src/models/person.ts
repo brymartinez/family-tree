@@ -1,4 +1,6 @@
 export class Person {
   name: string;
-  gender: 'F' | 'M';
+  gender: Gender;
 }
+
+export type Gender = 'Female' | 'Male';
