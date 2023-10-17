@@ -39,13 +39,13 @@ import { RelationshipObject } from './relationships/relationship';
   datasource.addChild('Bill', 'Louis', 'M');
   datasource.addSpouse('Victoire', 'Ted', 'M');
   datasource.addChild('Victoire', 'Remus', 'M');
+  datasource.addChild('Flora', 'Minerva', 'F');
 
   // const command = 'GET_RELATIONSHIP Bill Mother';
 
-  const rel = 'mother';
+  const rel = 'maternal-aunt';
 
   console.log(
-    RelationshipObject[rel]?.get('Remus') ||
-      new Error('Relationship not found.'),
+    RelationshipObject[rel]?.get('Remus') || new Error('PERSON_NOT_FOUND'),
   );
 })();
