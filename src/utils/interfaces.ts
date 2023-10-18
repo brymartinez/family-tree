@@ -1,0 +1,4 @@
+export enum Command {
+  ADD_CHILD = 'ADD_CHILD',
+  GET_RELATIONSHIP = 'GET_RELATIONSHIP',
+}

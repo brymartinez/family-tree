@@ -1,9 +1,8 @@
+import { Controller } from './controller/controller';
 import { DataSource } from './data/datasource';
-import { PersonNotFoundError } from './errors';
-import { Gender } from './models/person';
-import { RelationshipObject } from './relationships/relationship';
 import { Adapter } from './utils/adapter';
 import fs from 'fs';
+import { Command } from './utils/interfaces';
 
 (async () => {
   const datasource = DataSource.getInstance();
@@ -49,30 +48,14 @@ import fs from 'fs';
   const file = fs.readFileSync(fileName, { encoding: 'utf8' });
   const commandsText = file.split('\n');
 
+  // initialize controller
+  const controller = new Controller(datasource, new Adapter());
+
   for (const commands of commandsText) {
     try {
       const splitText = commands.split(' ');
-      const command = splitText[0];
-
-      switch (command) {
-        case 'GET_RELATIONSHIP':
-          const member = splitText[1];
-          const rel = splitText[2].toLowerCase();
-          console.log(
-            new Adapter(RelationshipObject[rel]?.get(member)).transform() ??
-              new PersonNotFoundError().message,
-          );
-          break;
-        case 'ADD_CHILD':
-          const mother = splitText[1];
-          const child = splitText[2];
-          const gender = splitText[3] as Gender;
-          datasource.addChild(mother, child, gender);
-          console.log('CHILD_ADDED');
-          break;
-        default:
-          break;
-      }
+      const command = splitText[0] as Command;
+      controller.do(command, splitText.slice(1, splitText.length));
     } catch (e) {
       console.log(e.message);
     }
