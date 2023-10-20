@@ -1,7 +1,7 @@
 import { DataSource } from 'src/data/datasource';
 
 describe('DataSource', () => {
-  const dataSource = DataSource.getInstance();
+  const dataSource = new DataSource();
 
   it('should fail to add', () => {
     expect(() =>

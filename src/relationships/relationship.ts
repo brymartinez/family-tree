@@ -9,15 +9,23 @@ import { MaternalAunt } from './maternal-aunt';
 import { SisterInLaw } from './sister-in-law';
 
 export interface Relationship {
-  get(name: string, relationship: string): Person[];
+  get(name: string): Person[];
 }
 
-export const RelationshipObject = {
-  mother: new Mother(DataSource.getInstance()),
-  father: new Father(DataSource.getInstance()),
-  siblings: new Siblings(DataSource.getInstance()),
-  spouse: new Spouse(DataSource.getInstance()),
-  children: new Children(DataSource.getInstance()),
-  'maternal-aunt': new MaternalAunt(DataSource.getInstance()),
-  'sister-in-law': new SisterInLaw(DataSource.getInstance()),
-};
+export class RelationshipFactory {
+  relationshipObject = {
+    mother: Mother,
+    father: Father,
+    siblings: Siblings,
+    spouse: Spouse,
+    children: Children,
+    'maternal-aunt': MaternalAunt,
+    'sister-in-law': SisterInLaw,
+  };
+
+  constructor(private dataSource: DataSource) {}
+
+  create(factoryName: string): Relationship {
+    return new this.relationshipObject[factoryName](this.dataSource);
+  }
+}

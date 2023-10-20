@@ -3,11 +3,15 @@ import { DataSource } from '../data/datasource';
 import { Adapter } from '../utils/adapter';
 import { Gender } from '../models/person';
 import { PersonNotFoundError } from '../errors';
-import { RelationshipObject } from '../relationships/relationship';
+import { RelationshipFactory } from '../relationships/relationship';
 
 export class Controller {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor(private dataSource: DataSource, private adapter: Adapter) {}
+  constructor(
+    private dataSource: DataSource,
+    private relationshipFactory: RelationshipFactory,
+    private adapter: Adapter,
+  ) {}
 
   public do(cmd: Command, args: string[]): void {
     console.log(args);
@@ -23,8 +27,9 @@ export class Controller {
         const member = args[0];
         const rel = args[1].toLowerCase();
         console.log(
-          this.adapter.transform(RelationshipObject[rel]?.get(member)) ??
-            new PersonNotFoundError().message,
+          this.adapter.transform(
+            this.relationshipFactory.create(rel).get(member),
+          ) ?? new PersonNotFoundError().message,
         );
         break;
       default:

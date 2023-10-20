@@ -3,9 +3,10 @@ import { DataSource } from './data/datasource';
 import { Adapter } from './utils/adapter';
 import fs from 'fs';
 import { Command } from './utils/interfaces';
+import { RelationshipFactory } from './relationships/relationship';
 
 (async () => {
-  const datasource = DataSource.getInstance();
+  const datasource = new DataSource();
 
   datasource.addMember({
     name: 'King Arthur',
@@ -49,7 +50,11 @@ import { Command } from './utils/interfaces';
   const commandsText = file.split('\n');
 
   // initialize controller
-  const controller = new Controller(datasource, new Adapter());
+  const controller = new Controller(
+    datasource,
+    new RelationshipFactory(datasource),
+    new Adapter(),
+  );
 
   for (const commands of commandsText) {
     try {

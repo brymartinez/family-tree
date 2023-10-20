@@ -3,19 +3,7 @@ import { ChildAdditionFailedError, PersonNotFoundError } from '../errors';
 import { FamilyMember } from 'src/models/family-member';
 
 export class DataSource {
-  private static instance: DataSource;
-  private static familyMember: Map<string, FamilyMember> = new Map();
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private constructor() {}
-
-  public static getInstance() {
-    if (!DataSource.instance) {
-      DataSource.instance = new DataSource();
-    }
-
-    return DataSource.instance;
-  }
+  private familyMember: Map<string, FamilyMember> = new Map();
 
   /**
    * Helper function for prepopulation.
@@ -24,7 +12,7 @@ export class DataSource {
    * @memberof DataSource
    */
   public addMember(familyMember: FamilyMember) {
-    DataSource.familyMember.set(familyMember.name, familyMember);
+    this.familyMember.set(familyMember.name, familyMember);
   }
 
   /*
@@ -34,7 +22,7 @@ export class DataSource {
     4. Save incomplete record
   */
   public addChild(mothersName: string, childName: string, gender: Gender) {
-    const mother = DataSource.familyMember.get(mothersName);
+    const mother = this.familyMember.get(mothersName);
 
     if (!mother) throw new PersonNotFoundError();
 
@@ -49,14 +37,14 @@ export class DataSource {
       gender,
     });
 
-    DataSource.familyMember.set(mothersName, {
+    this.familyMember.set(mothersName, {
       ...mother,
       children,
     });
 
     const fathersName = mother.spouse.name;
 
-    DataSource.familyMember.set(fathersName, {
+    this.familyMember.set(fathersName, {
       ...mother,
       name: mother.spouse.name,
       gender: mother.spouse.gender,
@@ -68,7 +56,7 @@ export class DataSource {
     });
 
     for (const sibling of childsSiblings) {
-      const siblingObject = DataSource.familyMember.get(sibling.name);
+      const siblingObject = this.familyMember.get(sibling.name);
       let otherSiblings = siblingObject.siblings;
 
       if (!otherSiblings?.length) otherSiblings = [];
@@ -78,7 +66,7 @@ export class DataSource {
         gender,
       });
 
-      DataSource.familyMember.set(sibling.name, {
+      this.familyMember.set(sibling.name, {
         ...siblingObject,
         siblings: otherSiblings,
       });
@@ -100,7 +88,7 @@ export class DataSource {
       spouse: undefined,
     };
 
-    DataSource.familyMember.set(childName, newFamilyMember);
+    this.familyMember.set(childName, newFamilyMember);
   }
 
   /**
@@ -115,9 +103,9 @@ export class DataSource {
    * @memberof DataSource
    */
   public addSpouse(memberName: string, spouseName: string, gender: Gender) {
-    const member = DataSource.familyMember.get(memberName);
+    const member = this.familyMember.get(memberName);
 
-    DataSource.familyMember.set(memberName, {
+    this.familyMember.set(memberName, {
       ...member,
       spouse: {
         name: spouseName,
@@ -126,9 +114,9 @@ export class DataSource {
     });
 
     for (const child of member.children) {
-      const childObject = DataSource.familyMember.get(child.name);
+      const childObject = this.familyMember.get(child.name);
 
-      DataSource.familyMember.set(child.name, {
+      this.familyMember.set(child.name, {
         ...childObject,
         ...(gender === 'Female' && {
           mother: {
@@ -158,10 +146,10 @@ export class DataSource {
       siblings: undefined,
     };
 
-    DataSource.familyMember.set(spouseName, newFamilyMember);
+    this.familyMember.set(spouseName, newFamilyMember);
   }
 
   public getFamilyMember(name: string) {
-    return DataSource.familyMember.get(name);
+    return this.familyMember.get(name);
   }
 }
